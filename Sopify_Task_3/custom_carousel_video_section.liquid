@@ -1,0 +1,172 @@
+{{ 'component-custom-carousel.css' | asset_url | stylesheet_tag }}
+
+<div class="color-{{ section.settings.color_scheme }} isolate gradient">
+  <div
+    class="collection{% if section.settings.quick_add == 'bulk' %} collection-quick-add-bulk{% endif %} section-{{ section.id }}-padding{% if section.settings.full_width %} collection--full-width{% endif %}"
+    id="collection-{{ section.id }}"
+    data-id="{{ section.id }}">
+    <h2 class="title inline-richtext {{ section.settings.heading_size }}{% if settings.animations_reveal_on_scroll %} scroll-trigger animate--slide-in{% endif %}">
+      {{ section.settings.title }}
+    </h2>
+    <slider-component class="slider-mobile-gutter slider-component-full-width slider-component-desktop  scroll-trigger animate--slide-in">
+      <ul
+        id="Slider-{{ section.id }}"
+        data-id="{{ section.id }}"
+        class="grid product-grid contains-card contains-card--product grid--4-col-desktop  grid--1-col-tablet-down slider slider--desktop slider--tablet grid--peek"
+        role="list"
+        aria-label="{{ 'general.slider.name' | t }}">
+        {% assign lazy_load = false %}
+        {%- for block in section.blocks -%}
+          {% if lazy_load == false and forloop.index > 4 %}
+            {% assign lazy_load = true %}
+          {% endif %}
+          <li
+            id="Slide-{{ section.id }}-{{ forloop.index }}"
+            class=" sgrid__item slider__slide scroll-trigger animate--slide-in"
+            data-cascade
+            style="--animation-order: {{ forloop.index }};">
+            <div class="custom_carousel">
+
+              {%- assign product = block.settings.product -%}
+              <div class="custom_video_wrapper">
+                {%- if block.settings.custom_video != blank -%}
+                  {{ block.settings.custom_video | video_tag: autoplay: true, loop: true, muted: true, controls: section.settings.video_controls, class: 'custom_video_element' }}
+                {%- else -%}
+                  <div class="video-placeholder">
+                    {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                  </div>
+                {%- endif -%}
+              </div>
+              {%- if product != blank -%}
+                <div class="carousel_product_item">
+                  <h3>{{ product.title }}</h3>
+                  <span>{{ product.price | money }}</span>
+                </div>
+                <a href="{{ product.url }}">
+                  <button class="product_button">View Product</button>
+                </a>
+              {%- endif -%}
+            </div>
+          </li>
+        {%- endfor -%}
+
+      </ul>
+      <div class="slider-buttons">
+        <button
+          type="button"
+          class="slider-button slider-button--prev"
+          name="previous"
+          aria-label="{{ 'general.slider.previous_slide' | t }}"
+          aria-controls="Slider-{{ section.id }}">
+          <span class="svg-wrapper">
+            {{- 'icon-caret.svg' | inline_asset_content -}}
+          </span>
+        </button>
+        <div class="slider-counter caption">
+          <span class="slider-counter--current">1</span>
+          <span aria-hidden="true">
+            /
+          </span>
+          <span class="visually-hidden">{{ 'general.slider.of' | t }}</span>
+          <span class="slider-counter--total">{{ section.blocks.size }}</span>
+        </div>
+        <button
+          type="button"
+          class="slider-button slider-button--next"
+          name="next"
+          aria-label="{{ 'general.slider.next_slide' | t }}"
+          aria-controls="Slider-{{ section.id }}">
+          <span class="svg-wrapper">
+            {{- 'icon-caret.svg' | inline_asset_content -}}
+          </span>
+        </button>
+      </div>
+
+    </slider-component>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "Custom Carousel Video",
+    "tag": "section",
+    "class": "section",
+    "settings": [
+
+      {
+        "type": "inline_richtext",
+        "id": "title",
+        "default": "t:sections.featured-collection.settings.title.default",
+        "label": "t:sections.featured-collection.settings.title.label"
+      },
+      {
+        "type": "select",
+        "id": "heading_size",
+        "options": [
+          {
+            "value": "h2",
+            "label": "t:sections.all.heading_size.options__1.label"
+          },
+          {
+            "value": "h1",
+            "label": "t:sections.all.heading_size.options__2.label"
+          },
+          {
+            "value": "h0",
+            "label": "t:sections.all.heading_size.options__3.label"
+          },
+          {
+            "value": "hxl",
+            "label": "t:sections.all.heading_size.options__4.label"
+          }, {
+            "value": "hxxl",
+            "label": "t:sections.all.heading_size.options__5.label"
+          }
+        ],
+        "default": "h1",
+        "label": "t:sections.all.heading_size.label"
+      },
+      {
+        "type": "color_scheme",
+        "id": "color_scheme",
+        "label": "t:sections.all.colors.label",
+        "info": "t:sections.all.colors.has_cards_info",
+        "default": "scheme-1"
+      },
+
+      {
+        "type": "checkbox",
+        "id": "video_controls",
+        "label": "Show Video Player Controls",
+        "default": true
+      }, {
+        "type": "checkbox",
+        "id": "enable_desktop_slider",
+        "label": "t:sections.featured-collection.settings.enable_desktop_slider.label",
+        "default": false
+      }
+    ],
+    "blocks": [
+      {
+        "type": "product_item",
+        "name": "Product Slide",
+        "settings": [
+          {
+            "type": "product",
+            "id": "product",
+            "label": "Choose Product"
+          }, {
+            "type": "video",
+            "id": "custom_video",
+            "label": "Select Video"
+          }
+        ]
+      }
+    ],
+    "presets": [
+      {
+        "name": "Custom Carousel Video"
+      }
+    ]
+  }
+{% endschema %}
